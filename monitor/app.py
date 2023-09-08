@@ -1,23 +1,22 @@
-from monitor import create_app
-from flask_restful import Resource, Api
-from flask import Flask, request
+import datetime
+import time
 from celery import Celery
 
 celery_app = Celery('health', broker='redis://localhost:6379/0')
 
-app = create_app('default')
-app_context = app.app_context()
-app_context.push()
+def monitor_task(microservice, message):
+    # Envía el mensaje a la cola específica del microservicio
+    celery_app.send_task('tasks.health_check', args=[message], queue=microservice)
 
-@celery_app(name='check')
-def chequeo_salud():
-    pass
+def run_monitor():
+    microservices = ['company', 'projects', 'team']
 
-class VistaMonitor(Resource):
-    def get(self):
-        microservices = ['service_empresa', 'service_proyectp', 'service_equipo']
-        chequeo_salud.delay()
-        return {'message': 'Chequeo iniciado'}, 200
+    for i in range(1000):
+        for microservice in microservices:
+            print(f'{datetime.datetime.now()} {microservice} {i}')
+            monitor_task(microservice, i)
+        
 
-api = Api(app)
-api.add_resource(VistaMonitor, '/monitor')
+
+if __name__ == '__main__':    
+    run_monitor()
