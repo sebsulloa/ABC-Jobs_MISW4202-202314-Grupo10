@@ -25,6 +25,7 @@ def check(message):
         failure = ServiceRegistration(requestId = message, timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), serviceName='projects')
         session.add(failure)
         session.commit()
-        session.close()   
+        session.close()
+        
 
    

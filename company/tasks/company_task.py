@@ -26,3 +26,4 @@ def check(message):
         session.add(failure)
         session.commit()
         session.close()
+        
